@@ -1,7 +1,13 @@
 package chat
 
+import (
+	"context"
+
+	"github.com/nhutHao02/social-network-chat-service/internal/domain/model"
+)
+
 type ChatQueryRepository interface {
-	ChatQuery()
+	GetMessages(ctx context.Context, req model.GetMessagesReq) ([]model.GetMessagesRes, uint64, error)
 }
 
 type ChatCommandRepository interface {

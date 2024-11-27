@@ -25,7 +25,8 @@ func MapRoutes(
 		})
 		v1.Use(middleware.JwtAuthMiddleware(logger.GetDefaultLogger()))
 		{
-			// vTweet := v1.Group("/chat")
+			vChat := v1.Group("/chat")
+			vChat.GET("", chatHandler.GetPrivateMessages)
 
 			// vSocket := v1.Group("/ws")
 		}
