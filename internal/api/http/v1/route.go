@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"net/http"
+
 	_ "github.com/nhutHao02/social-network-chat-service/docs"
 
 	"github.com/gin-gonic/gin"
@@ -16,12 +18,18 @@ func MapRoutes(
 ) {
 	v1 := router.Group("/api/v1")
 	{
+		v1.GET("/ping", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "pong",
+			})
+		})
 		v1.Use(middleware.JwtAuthMiddleware(logger.GetDefaultLogger()))
 		{
 			// vTweet := v1.Group("/chat")
 
 			// vSocket := v1.Group("/ws")
 		}
+
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

@@ -60,6 +60,7 @@ require (
 )
 
 require (
+	github.com/google/wire v0.6.0
 	github.com/nhutHao02/social-network-common-service v0.0.0-20241124093545-f090b9242870
 	github.com/nhutHao02/social-network-user-service v0.0.0-20241124093320-23b091ef90dd
 	github.com/redis/go-redis/v9 v9.7.0

@@ -7,10 +7,13 @@ import (
 
 	"github.com/nhutHao02/social-network-chat-service/config"
 	"github.com/nhutHao02/social-network-chat-service/database"
+	"github.com/nhutHao02/social-network-chat-service/internal"
+	"github.com/nhutHao02/social-network-chat-service/internal/api"
 	"github.com/nhutHao02/social-network-chat-service/pkg/redis"
 	"github.com/nhutHao02/social-network-common-service/utils/logger"
 	pb "github.com/nhutHao02/social-network-user-service/pkg/grpc"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -23,7 +26,7 @@ func Start() {
 	cfg := config.LoadConfig()
 
 	// database setup
-	_ = database.ConnectToMongo(cfg.Database)
+	db := database.ConnectToMongo(cfg.Database)
 
 	// init redis
 	rdb := redis.InitRedis(cfg.Redis)
@@ -35,35 +38,34 @@ func Start() {
 	}
 
 	// connect to grpc server
-	// userClient := openClientConnection(cfg.Client)
-	_ = openClientConnection(cfg.Client)
+	userClient := openClientConnection(cfg.Client)
 
 	// // init Socket
 	// ws := websocket.NewSocket()
 
 	// // init Server
-	// server := internal.InitializeServer(cfg, db, rdb, userClient, ws)
+	server := internal.InitializeServer(cfg, db, rdb, userClient)
 
 	// run server
-	// runServer(server)
+	runServer(server)
 
 }
 
-// func runServer(server *api.Server) {
-// 	var g errgroup.Group
+func runServer(server *api.Server) {
+	var g errgroup.Group
 
-// 	g.Go(func() error {
-// 		return server.HTTPServer.RunHTTPServer()
-// 	})
+	g.Go(func() error {
+		return server.HTTPServer.RunHTTPServer()
+	})
 
-// 	// g.Go(func() error {
-// 	// 	return server.GRPCServer.RunGRPCServer()
-// 	// })
+	// g.Go(func() error {
+	// 	return server.GRPCServer.RunGRPCServer()
+	// })
 
-// 	if err := g.Wait(); err != nil {
-// 		logger.Fatal("Error when start server", zap.Error(err))
-// 	}
-// }
+	if err := g.Wait(); err != nil {
+		logger.Fatal("Error when start server", zap.Error(err))
+	}
+}
 
 func initLogger() {
 	err := logger.InitLogger()
