@@ -28,7 +28,8 @@ func MapRoutes(
 			vChat := v1.Group("/chat")
 			vChat.GET("", chatHandler.GetPrivateMessages)
 
-			// vSocket := v1.Group("/ws")
+			vSocket := v1.Group("/ws")
+			vSocket.GET("private-message", chatHandler.MessageWebSocketHandler)
 		}
 
 	}

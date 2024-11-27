@@ -7,6 +7,7 @@ import (
 	"github.com/nhutHao02/social-network-chat-service/internal/application"
 	"github.com/nhutHao02/social-network-chat-service/internal/domain/model"
 	"github.com/nhutHao02/social-network-chat-service/pkg/constants"
+	"github.com/nhutHao02/social-network-chat-service/pkg/websocket"
 	common "github.com/nhutHao02/social-network-common-service/model"
 	"github.com/nhutHao02/social-network-common-service/request"
 	"github.com/nhutHao02/social-network-common-service/utils/logger"
@@ -69,4 +70,55 @@ func (h *ChatHandler) GetPrivateMessages(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, common.NewPagingSuccessResponse(res, total))
+}
+
+// MessageWebSocketHandler godoc
+//
+//	@Summary		MessageWebSocketHandler
+//	@Description	Establish a WebSocket connection to send messages between users in real-time.
+//	@Tags			Tweet
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header		string						true	"Bearer <your_token>"
+//	@Param			userID			query		int							true	"User ID"
+//	@Param			tweetID			query		int							true	"Tweet ID"
+//	@Success		101				{string}	string						"WebSocket connection established"
+//	@Failure		default			{object}	common.Response{data=nil}	"failure"
+//	@Router			/ws/private-message [get]
+func (h *ChatHandler) MessageWebSocketHandler(c *gin.Context) {
+	var req model.MessageReq
+
+	if err := request.GetQueryParamsFromUrl(c, &req); err != nil {
+		return
+	}
+
+	userID, err := token.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, common.NewErrorResponse(err.Error(), constants.ConnectPrivateMessageWebSocketFailure))
+		return
+	}
+
+	if userID != int(req.SenderID) {
+		c.JSON(http.StatusBadRequest, common.NewErrorResponse(constants.InvalidUserID, constants.ConnectPrivateMessageWebSocketFailure))
+		return
+	}
+
+	token, err := token.GetTokenString(c)
+	if err != nil {
+		logger.Error("ChatHandler-MessageWebSocketHandler: get token from request error", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error(), constants.ConnectPrivateMessageWebSocketFailure))
+		return
+	}
+
+	req.Token = token
+
+	// Upgrade HTTP connection to WebSocket
+	conn, err := websocket.Upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		logger.Error("Error when upgrade HTTP connection to WebSocket", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error(), constants.ConnectPrivateMessageWebSocketFailure))
+		return
+	}
+
+	h.chatService.PrivateMessageWS(c.Request.Context(), conn, req)
 }

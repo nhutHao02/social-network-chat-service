@@ -16,15 +16,16 @@ import (
 	"github.com/nhutHao02/social-network-chat-service/internal/application/imp"
 	"github.com/nhutHao02/social-network-chat-service/internal/infrastructure/chat"
 	"github.com/nhutHao02/social-network-chat-service/pkg/redis"
+	"github.com/nhutHao02/social-network-chat-service/pkg/websocket"
 	"github.com/nhutHao02/social-network-user-service/pkg/grpc"
 )
 
 // Injectors from wire.go:
 
-func InitializeServer(cfg *config.Config, db *database.MongoDbClient, rdb *redis.RedisClient, userClient grpc.UserServiceClient) *api.Server {
+func InitializeServer(cfg *config.Config, db *database.MongoDbClient, rdb *redis.RedisClient, userClient grpc.UserServiceClient, commentWS *websocket.Socket) *api.Server {
 	chatQueryRepository := chat.NewChatQueryRepository(db, cfg)
 	chatCommandRepository := chat.NewChatCommandRepository(db, cfg)
-	chatService := imp.NewChatService(chatQueryRepository, chatCommandRepository, userClient)
+	chatService := imp.NewChatService(chatQueryRepository, chatCommandRepository, userClient, commentWS)
 	chatHandler := v1.NewChatHandler(chatService)
 	httpServer := http.NewHTTPServer(cfg, chatHandler)
 	server := api.NewSerVer(httpServer)

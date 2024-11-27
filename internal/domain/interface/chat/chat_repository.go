@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 
+	"github.com/nhutHao02/social-network-chat-service/internal/domain/entity"
 	"github.com/nhutHao02/social-network-chat-service/internal/domain/model"
 )
 
@@ -11,5 +12,5 @@ type ChatQueryRepository interface {
 }
 
 type ChatCommandRepository interface {
-	ChatCommand()
+	InsertMessage(ctx context.Context, entityModel entity.Message) (string, error)
 }

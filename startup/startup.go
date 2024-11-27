@@ -10,6 +10,7 @@ import (
 	"github.com/nhutHao02/social-network-chat-service/internal"
 	"github.com/nhutHao02/social-network-chat-service/internal/api"
 	"github.com/nhutHao02/social-network-chat-service/pkg/redis"
+	"github.com/nhutHao02/social-network-chat-service/pkg/websocket"
 	"github.com/nhutHao02/social-network-common-service/utils/logger"
 	pb "github.com/nhutHao02/social-network-user-service/pkg/grpc"
 	"go.uber.org/zap"
@@ -40,11 +41,11 @@ func Start() {
 	// connect to grpc server
 	userClient := openClientConnection(cfg.Client)
 
-	// // init Socket
-	// ws := websocket.NewSocket()
+	// init Socket
+	ws := websocket.NewSocket()
 
 	// // init Server
-	server := internal.InitializeServer(cfg, db, rdb, userClient)
+	server := internal.InitializeServer(cfg, db, rdb, userClient, ws)
 
 	// run server
 	runServer(server)

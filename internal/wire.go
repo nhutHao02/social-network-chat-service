@@ -13,6 +13,7 @@ import (
 	"github.com/nhutHao02/social-network-chat-service/internal/application/imp"
 	"github.com/nhutHao02/social-network-chat-service/internal/infrastructure/chat"
 	"github.com/nhutHao02/social-network-chat-service/pkg/redis"
+	ws "github.com/nhutHao02/social-network-chat-service/pkg/websocket"
 	grpcUser "github.com/nhutHao02/social-network-user-service/pkg/grpc"
 )
 
@@ -42,6 +43,7 @@ func InitializeServer(
 	db *database.MongoDbClient,
 	rdb *redis.RedisClient,
 	userClient grpcUser.UserServiceClient,
+	commentWS *ws.Socket,
 ) *api.Server {
 	wire.Build(serverSet, itemServerSet, httpHandlerSet, serviceSet, repositorySet)
 	return &api.Server{}
