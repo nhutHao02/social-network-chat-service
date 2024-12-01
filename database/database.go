@@ -85,9 +85,9 @@ func (db *MongoDbClient) InsertMany(ctx context.Context, databaseName, collectio
 }
 
 // UpdateOne updates a single document in the specified collection based on the filter.
-func (db *MongoDbClient) UpdateOne(ctx context.Context, databaseName, collectionName string, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
+func (db *MongoDbClient) UpdateOne(ctx context.Context, databaseName, collectionName string, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	collection := db.Mdb.Database(databaseName).Collection(collectionName)
-	updateResult, err := collection.UpdateOne(ctx, filter, update)
+	updateResult, err := collection.UpdateOne(ctx, filter, update, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,9 +95,9 @@ func (db *MongoDbClient) UpdateOne(ctx context.Context, databaseName, collection
 }
 
 // UpdateMany updates documents in the specified collection based on the filter.
-func (db *MongoDbClient) UpdateMany(ctx context.Context, databaseName, collectionName string, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
+func (db *MongoDbClient) UpdateMany(ctx context.Context, databaseName, collectionName string, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	collection := db.Mdb.Database(databaseName).Collection(collectionName)
-	updateResult, err := collection.UpdateMany(ctx, filter, update)
+	updateResult, err := collection.UpdateMany(ctx, filter, update, opts...)
 	if err != nil {
 		return nil, err
 	}

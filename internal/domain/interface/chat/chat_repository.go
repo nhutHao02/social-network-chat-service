@@ -13,4 +13,5 @@ type ChatQueryRepository interface {
 
 type ChatCommandRepository interface {
 	InsertMessage(ctx context.Context, entityModel entity.Message) (string, error)
+	UpdateRecentMessage(ctx context.Context, entityModel entity.Message) error
 }

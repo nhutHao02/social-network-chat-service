@@ -73,7 +73,12 @@ func (c *chatService) PrivateMessageWS(ctx context.Context, conn *websocket.Conn
 
 		documentID, err := c.commandRepo.InsertMessage(ctx, entityModel)
 		if err != nil {
-			logger.Warn("tweetService-CommentWebSocket: Error saving comment to DB and ignore broadcast", zap.Error(err))
+			logger.Error("tweetService-CommentWebSocket: Error saving comment to DB and ignore broadcast", zap.Error(err))
+			continue
+		}
+
+		if err = c.commandRepo.UpdateRecentMessage(ctx, entityModel); err != nil {
+			logger.Error("tweetService-CommentWebSocket: Error update recent message to DB and ignore broadcast", zap.Error(err))
 			continue
 		}
 

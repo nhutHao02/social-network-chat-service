@@ -1,5 +1,6 @@
 package entity
 
 var (
-	CollectionMessage = "message"
+	CollectionMessage       = "message"
+	CollectionRecentMessage = "recent_message"
 )
