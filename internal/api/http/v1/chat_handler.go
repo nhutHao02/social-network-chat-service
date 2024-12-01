@@ -36,7 +36,7 @@ func NewChatHandler(chatService application.ChatService) *ChatHandler {
 //	@Param			limit		query		int												false	"Limit"
 //	@Success		200			{object}	common.Response{data=[]model.GetMessagesRes}	"successfully"
 //	@Failure		default		{object}	common.Response{data=nil}						"failure"
-//	@Router			/guest/sign-up [post]
+//	@Router			/chat [get]
 func (h *ChatHandler) GetPrivateMessages(c *gin.Context) {
 	var req model.GetMessagesReq
 
@@ -123,6 +123,19 @@ func (h *ChatHandler) MessageWebSocketHandler(c *gin.Context) {
 	h.chatService.PrivateMessageWS(c.Request.Context(), conn, req)
 }
 
+// GetRecentMessage godoc
+//
+//	@Summary		GetRecentMessage
+//	@Description	Get Recent Message by userID
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			userID	query		int												true	"UserID"
+//	@Param			page	query		int												false	"Page"
+//	@Param			limit	query		int												false	"Limit"
+//	@Success		200		{object}	common.Response{data=[]model.GetMessagesRes}	"successfully"
+//	@Failure		default	{object}	common.Response{data=nil}						"failure"
+//	@Router			/chat/recent [get]
 func (h *ChatHandler) GetRecentMessage(c *gin.Context) {
 	var req model.RecentMessageReq
 
