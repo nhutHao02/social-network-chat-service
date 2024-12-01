@@ -10,4 +10,5 @@ import (
 type ChatService interface {
 	GetMessages(ctx context.Context, req model.GetMessagesReq) ([]model.GetMessagesRes, uint64, error)
 	PrivateMessageWS(ctx context.Context, conn *websocket.Conn, req model.MessageReq)
+	GetRecentMessage(ctx context.Context, req model.RecentMessageReq) ([]model.RecentMessagesRes, uint64, error)
 }

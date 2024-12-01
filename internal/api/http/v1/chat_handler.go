@@ -122,3 +122,39 @@ func (h *ChatHandler) MessageWebSocketHandler(c *gin.Context) {
 
 	h.chatService.PrivateMessageWS(c.Request.Context(), conn, req)
 }
+
+func (h *ChatHandler) GetRecentMessage(c *gin.Context) {
+	var req model.RecentMessageReq
+
+	if err := request.GetQueryParamsFromUrl(c, &req); err != nil {
+		return
+	}
+
+	userID, err := token.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, common.NewErrorResponse(err.Error(), constants.GetRecentMessagesFailure))
+		return
+	}
+
+	if userID != int(req.UserID) {
+		c.JSON(http.StatusBadRequest, common.NewErrorResponse(constants.InvalidUserID, constants.GetRecentMessagesFailure))
+		return
+	}
+
+	token, err := token.GetTokenString(c)
+	if err != nil {
+		logger.Error("ChatHandler-GetRecentMessage: get token from request error", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error(), constants.GetRecentMessagesFailure))
+		return
+	}
+
+	req.Token = token
+
+	res, total, err := h.chatService.GetRecentMessage(c.Request.Context(), req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, common.NewErrorResponse(err.Error(), constants.GetRecentMessagesFailure))
+		return
+	}
+
+	c.JSON(http.StatusOK, common.NewPagingSuccessResponse(res, total))
+}

@@ -25,6 +25,42 @@ type chatService struct {
 	ws          *ws.Socket
 }
 
+// GetRecentMessage implements application.ChatService.
+func (c *chatService) GetRecentMessage(ctx context.Context, req model.RecentMessageReq) ([]model.RecentMessagesRes, uint64, error) {
+	res, total, err := c.queryRepo.GetRecentMessage(ctx, req)
+	if err != nil {
+		return res, total, err
+	}
+
+	// Get User Info
+	// Create context with metadata
+	md := metadata.Pairs("authorization", constants.BearerString+req.Token)
+	ctxx := metadata.NewOutgoingContext(ctx, md)
+
+	for index, _ := range res {
+		reqUserID := res[index].SenderID
+		if req.UserID == res[index].SenderID {
+			reqUserID = res[index].ReceiverID
+		}
+
+		userRes, err := c.userClient.GetUserInfo(ctxx, &grpcUser.GetUserRequest{UserID: reqUserID})
+		if err != nil {
+			logger.Error("chatService-GetRecentMessage: call grpcUser to server error", zap.Error(err))
+			return res, total, err
+		}
+
+		// pass user info to res
+		res[index].Info = &model.UserInfo{
+			ID:       int(userRes.Id),
+			Email:    &userRes.Email,
+			FullName: &userRes.FullName,
+			UrlAvt:   &userRes.UrlAvt,
+		}
+	}
+
+	return res, total, nil
+}
+
 // PrivateMessageWS implements application.ChatService.
 func (c *chatService) PrivateMessageWS(ctx context.Context, conn *websocket.Conn, req model.MessageReq) {
 	// create roomID, userID connect and model

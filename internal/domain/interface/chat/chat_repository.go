@@ -9,6 +9,7 @@ import (
 
 type ChatQueryRepository interface {
 	GetMessages(ctx context.Context, req model.GetMessagesReq) ([]model.GetMessagesRes, uint64, error)
+	GetRecentMessage(ctx context.Context, req model.RecentMessageReq) ([]model.RecentMessagesRes, uint64, error)
 }
 
 type ChatCommandRepository interface {

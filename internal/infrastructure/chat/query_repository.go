@@ -19,6 +19,41 @@ type chatQueryRepository struct {
 	db  *database.MongoDbClient
 }
 
+// GetRecentMessage implements chat.ChatQueryRepository.
+func (repo *chatQueryRepository) GetRecentMessage(ctx context.Context, req model.RecentMessageReq) ([]model.RecentMessagesRes, uint64, error) {
+	var res []model.RecentMessagesRes
+
+	filter := bson.M{
+		"$or": []bson.M{
+			{
+				"sender_id": req.UserID,
+			},
+			{
+				"receiver_id": req.UserID,
+			},
+		},
+	}
+
+	opts := options.Find()
+	opts.SetSort(bson.D{{Key: "timestamp", Value: -1}})
+	opts.SetSkip((req.Page - 1) * req.Limit)
+	opts.SetLimit(req.Limit)
+
+	err := repo.db.FindMany(ctx, repo.cfg.Database.DBName, entity.CollectionRecentMessage, filter, &res, opts)
+	if err != nil {
+		logger.Error("chatQueryRepository-GetRecentMessage: FindMany message error", zap.Error(err))
+		return res, 0, err
+	}
+
+	totalCount, err := repo.db.CountDocuments(ctx, repo.cfg.Database.DBName, entity.CollectionRecentMessage, filter)
+	if err != nil {
+		logger.Error("chatQueryRepository-GetRecentMessage: Count Documents error", zap.Error(err))
+		return res, 0, err
+	}
+
+	return res, uint64(totalCount), nil
+}
+
 // GetMessages implements chat.ChatQueryRepository.
 func (repo *chatQueryRepository) GetMessages(ctx context.Context, req model.GetMessagesReq) ([]model.GetMessagesRes, uint64, error) {
 	var res []model.GetMessagesRes
