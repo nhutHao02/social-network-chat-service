@@ -59,6 +59,7 @@ require (
 )
 
 require (
+	github.com/gin-contrib/cors v1.7.2
 	github.com/google/wire v0.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/nhutHao02/social-network-common-service v0.0.0-20241124093545-f090b9242870

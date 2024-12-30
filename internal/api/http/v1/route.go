@@ -3,9 +3,9 @@ package v1
 import (
 	"net/http"
 
-	_ "github.com/nhutHao02/social-network-chat-service/docs"
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/nhutHao02/social-network-chat-service/docs"
 	"github.com/nhutHao02/social-network-common-service/middleware"
 	"github.com/nhutHao02/social-network-common-service/utils/logger"
 	swaggerFiles "github.com/swaggo/files"
@@ -16,6 +16,13 @@ func MapRoutes(
 	router *gin.Engine,
 	chatHandler *ChatHandler,
 ) {
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/ping", func(c *gin.Context) {
