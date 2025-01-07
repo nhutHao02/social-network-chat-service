@@ -20,7 +20,7 @@ type GetMessagesRes struct {
 	ReceiverID   int64              `bson:"receiver_id" json:"receiverID"`
 	Content      string             `bson:"content" json:"content"`
 	Timestamp    time.Time          `bson:"timestamp" json:"createdAt"`
-	ReceiverInfo *UserInfo          `json:"receiverInfo"`
+	ReceiverInfo *UserInfo          `json:"info"`
 }
 
 type RecentMessageReq struct {

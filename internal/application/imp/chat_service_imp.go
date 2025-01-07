@@ -126,8 +126,10 @@ func (c *chatService) PrivateMessageWS(ctx context.Context, conn *websocket.Conn
 				FullName: &userRes.FullName,
 				UrlAvt:   &userRes.UrlAvt,
 			},
-			Message:   incomingMessage.Message,
-			CreatedAt: currentTime,
+			Message:    incomingMessage.Message,
+			CreatedAt:  currentTime,
+			SenderID:   req.SenderID,
+			ReceiverID: req.ReceiverID,
 		}
 		// Broadcast message to the room
 		c.ws.Broadcast(messageRoomID, userWSID, outGoingMessage)

@@ -51,12 +51,12 @@ func (s *Socket) RemoveConnection(roomID string, userID string, conn *websocket.
 func (s *Socket) Broadcast(roomID string, userID string, message model.OutgoingMessageWSRes) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	for uid, conn := range s.connections[roomID] {
-		if uid != userID {
-			if err := conn.WriteJSON(message); err != nil {
-				logger.Error("Socket-Broadcast: Error sending message", zap.Error(err))
-				s.RemoveConnection(roomID, userID, conn)
-			}
+	for _, conn := range s.connections[roomID] {
+		// if uid != userID {
+		if err := conn.WriteJSON(message); err != nil {
+			logger.Error("Socket-Broadcast: Error sending message", zap.Error(err))
+			s.RemoveConnection(roomID, userID, conn)
 		}
+		// }
 	}
 }

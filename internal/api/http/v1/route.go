@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"net/http"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/nhutHao02/social-network-chat-service/docs"
@@ -25,11 +23,8 @@ func MapRoutes(
 	}))
 	v1 := router.Group("/api/v1")
 	{
-		v1.GET("/ping", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "pong",
-			})
-		})
+		v1.GET("/ws/messages", chatHandler.MessageWSHandler)
+
 		v1.Use(middleware.JwtAuthMiddleware(logger.GetDefaultLogger()))
 		{
 			vChat := v1.Group("/chat")
