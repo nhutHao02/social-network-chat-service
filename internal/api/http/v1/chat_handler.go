@@ -154,6 +154,37 @@ func (h *ChatHandler) MessageWSHandler(c *gin.Context) {
 	h.chatService.PrivateMessageWS(c.Request.Context(), conn, req)
 }
 
+// MessageWSRecentHandler godoc
+//
+//	@Summary		MessageWSRecentHandler
+//	@Description	Establish a WebSocket connection to send recent messages to user in real-time.
+//	@Tags			Tweet
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header		string						true	"Bearer <your_token>"
+//	@Param			userID			query		int							true	"User ID"
+//	@Param			tweetID			query		int							true	"Tweet ID"
+//	@Success		101				{string}	string						"WebSocket connection established"
+//	@Failure		default			{object}	common.Response{data=nil}	"failure"
+//	@Router			/ws/private-message [get]
+func (h *ChatHandler) MessageWSRecentHandler(c *gin.Context) {
+	var req model.WSRecentReq
+
+	if err := request.GetQueryParamsFromUrl(c, &req); err != nil {
+		return
+	}
+
+	// Upgrade HTTP connection to WebSocket
+	conn, err := websocket.Upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		logger.Error("Error when upgrade HTTP connection to WebSocket", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, common.NewErrorResponse(err.Error(), constants.ConnectPrivateMessageWebSocketFailure))
+		return
+	}
+
+	h.chatService.RecentMessageWS(c.Request.Context(), conn, req)
+}
+
 // GetRecentMessage godoc
 //
 //	@Summary		GetRecentMessage

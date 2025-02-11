@@ -20,3 +20,8 @@ type OutgoingMessageWSRes struct {
 	SenderID   int64     `json:"senderID"`
 	ReceiverID int64     `json:"receiverID"`
 }
+
+type WSRecentReq struct {
+	UserID int64  `form:"userID"`
+	Token  string `form:"token"`
+}

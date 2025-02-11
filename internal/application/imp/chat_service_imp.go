@@ -133,6 +133,23 @@ func (c *chatService) PrivateMessageWS(ctx context.Context, conn *websocket.Conn
 		}
 		// Broadcast message to the room
 		c.ws.Broadcast(messageRoomID, userWSID, outGoingMessage)
+
+		// Broadcast recent message to users
+		c.ws.BroadcastRecentMgs(strconv.Itoa(int(req.SenderID)), outGoingMessage)
+		c.ws.BroadcastRecentMgs(strconv.Itoa(int(req.ReceiverID)), outGoingMessage)
+	}
+
+}
+
+// RecentMessageWS implements application.ChatService.
+func (c *chatService) RecentMessageWS(ctx context.Context, conn *websocket.Conn, req model.WSRecentReq) {
+
+	// Add connection
+	c.ws.AddRecentMgsConnection(strconv.Itoa(int(req.UserID)), conn)
+
+	// Listen for connection close event
+	defer c.ws.RemoveRecentMgsConnection(strconv.Itoa(int(req.UserID)), conn)
+	for {
 	}
 
 }

@@ -24,7 +24,7 @@ func MapRoutes(
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/ws/messages", chatHandler.MessageWSHandler)
-
+		v1.GET("/ws/recent", chatHandler.MessageWSRecentHandler)
 		v1.Use(middleware.JwtAuthMiddleware(logger.GetDefaultLogger()))
 		{
 			vChat := v1.Group("/chat")

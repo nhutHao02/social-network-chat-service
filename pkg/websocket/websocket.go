@@ -18,13 +18,15 @@ var Upgrader = websocket.Upgrader{
 
 type Socket struct {
 	//          map[roomID]map[userID]*websocket.Conn
-	connections map[string]map[string]*websocket.Conn
-	mu          sync.RWMutex
+	connections         map[string]map[string]*websocket.Conn
+	mu                  sync.RWMutex
+	recentMsgConnection map[string]*websocket.Conn
 }
 
 func NewSocket() *Socket {
 	return &Socket{
-		connections: make(map[string]map[string]*websocket.Conn),
+		connections:         make(map[string]map[string]*websocket.Conn),
+		recentMsgConnection: make(map[string]*websocket.Conn),
 	}
 }
 
@@ -58,5 +60,34 @@ func (s *Socket) Broadcast(roomID string, userID string, message model.OutgoingM
 			s.RemoveConnection(roomID, userID, conn)
 		}
 		// }
+	}
+}
+
+// Add connection
+func (s *Socket) AddRecentMgsConnection(userID string, conn *websocket.Conn) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.recentMsgConnection[userID] = conn
+}
+
+// Remove connection
+func (s *Socket) RemoveRecentMgsConnection(userID string, conn *websocket.Conn) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.recentMsgConnection, userID)
+	conn.Close()
+}
+
+// Broadcast message to all connections
+func (s *Socket) BroadcastRecentMgs(userID string, message model.OutgoingMessageWSRes) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for uid, conn := range s.recentMsgConnection {
+		if uid == userID {
+			if err := conn.WriteJSON(message); err != nil {
+				logger.Error("Socket-Broadcast: Error sending recent message", zap.Error(err))
+				s.RemoveRecentMgsConnection(userID, conn)
+			}
+		}
 	}
 }
